@@ -18,8 +18,9 @@ export default async function handler(req, res) {
       body: JSON.stringify(req.body)
     });
 
-    const data = await response.json();
-    res.status(200).json(data);
+    const text = await response.text();
+    res.setHeader('Content-Type', 'application/json');
+    res.status(response.status).send(text);
   } catch (error) {
     res.status(500).json({ error: 'Error connecting to Claude' });
   }
