@@ -173,7 +173,7 @@ async function callClaude(newHistory) {
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: SYSTEM_PROMPT, messages: newHistory })
+      body: JSON.stringify({ model: 'claude-sonnet-4-5, max_tokens: 1000, system: SYSTEM_PROMPT, messages: newHistory })
     });
     const data = await res.json();
     const el = document.getElementById('typing');
@@ -215,7 +215,7 @@ async function startChat() {
   history = []; done = false;
   document.getElementById('input').placeholder = 'Escribe tu respuesta aquí...';
   document.getElementById('input').disabled = false;
-  await callClaude([]);
+  await callClaude([{role:'user', content:'Hola'}]);
 }
 
 document.getElementById('input').addEventListener('keydown', function(e) {
