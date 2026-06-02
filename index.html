@@ -65,7 +65,7 @@ button:disabled { background:#C5CDD6; cursor:not-allowed; }
 <script>
 var SYSTEM_PROMPT = "Eres el asistente virtual de GG CONSULTORES & BROKERS INDUSTRIALES, empresa especializada en bodegas industriales, naves industriales y terrenos industriales en Queretaro y Mexico. Representas al Lic. Eduardo Garcia, Socio-Director Comercial. Tu mision es calificar leads de manera conversacional. Haz las siguientes 8 preguntas UNA A LA VEZ: 1. Nombre completo del prospecto 2. Nombre de su empresa 3. Giro o actividad principal 4. Tipo de operacion: Inversion, Compra-Venta, Renta o Usuario Final 5. Metros cuadrados requeridos 6. Zona o ciudad requerida 7. Caracteristicas tecnicas: altura libre, tipo de piso, rampa, anden, potencia electrica 8. Fecha de disponibilidad requerida. Al terminar escribe [RESUMEN_LISTO] y un JSON: {nombre,empresa,giro,operacion,metros,zona,caracteristicas,urgencia,calificacion,razon}. Calificacion: calificado si empresa definida mas de 300m2 y urgencia menor a 6 meses, potencial si datos vagos, no-calificado si sin empresa. Inicia presentandote y pidiendo el nombre. Habla en español mexicano profesional.";
 
-var history = [];
+chatHistory = [];
 var loading = false;
 var done = false;
 
@@ -127,7 +127,7 @@ function callClaude(newHistory) {
       setLoading(false);
       return;
     }
-    history = newHistory.concat([{role: "assistant", content: raw}]);
+    chatHistory = newHistory.concat([{role: "assistant", content: raw}]);
     if (raw.indexOf("[RESUMEN_LISTO]") !== -1) {
       var before = raw.split("[RESUMEN_LISTO]")[0].trim();
       if (before) addMessage("agent", before);
@@ -152,7 +152,7 @@ function sendMessage() {
   if (!text || loading || done) return;
   input.value = "";
   addMessage("user", text);
-  var newHistory = history.concat([{role: "user", content: text}]);
+  var newHistory = chatHistory.concat([{role: "user", content: text}]);
   callClaude(newHistory);
 }
 
