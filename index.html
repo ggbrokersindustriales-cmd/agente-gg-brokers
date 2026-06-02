@@ -132,6 +132,35 @@ function callClaude(newHistory) {
       var before = raw.split("[RESUMEN_LISTO]")[0].trim();
       if (before) addMessage("agent", before);
       done = true;
+document.getElementById("input").placeholder = "Conversacion finalizada";
+if (jsonMatch) {
+  try {
+    var d = JSON.parse(jsonMatch[0]);
+    var msg = "Hola Eduardo, te comparto un nuevo prospecto calificado por tu agente GG Brokers:%0A%0A" +
+      "Nombre: " + d.nombre + "%0A" +
+      "Empresa: " + d.empresa + "%0A" +
+      "Giro: " + d.giro + "%0A" +
+      "Operacion: " + d.operacion + "%0A" +
+      "Metros: " + d.metros + "%0A" +
+      "Zona: " + d.zona + "%0A" +
+      "Caracteristicas: " + d.caracteristicas + "%0A" +
+      "Urgencia: " + d.urgencia + "%0A" +
+      "Calificacion: " + d.calificacion.toUpperCase() + "%0A" +
+      "Razon: " + d.razon;
+    var waLink = "https://wa.me/524424571050?text=" + msg;
+    var msgs = document.getElementById("messages");
+    var btnWrap = document.createElement("div");
+    btnWrap.style.cssText = "display:flex;justify-content:center;margin-top:16px;";
+    var waBtn = document.createElement("a");
+    waBtn.href = waLink;
+    waBtn.target = "_blank";
+    waBtn.style.cssText = "background:#25D366;color:white;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;";
+    waBtn.innerHTML = "📲 Enviar información al asesor";
+    btnWrap.appendChild(waBtn);
+    msgs.appendChild(btnWrap);
+    msgs.scrollTop = msgs.scrollHeight;
+  } catch(e) {}
+}
       document.getElementById("input").placeholder = "Conversacion finalizada";
     } else {
       addMessage("agent", raw);
