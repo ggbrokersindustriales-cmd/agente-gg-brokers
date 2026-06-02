@@ -162,7 +162,7 @@ if (jsonMatch2) {
     btnWrap.appendChild(waBtn);
     msgs2.appendChild(btnWrap);
     msgs2.scrollTop = msgs2.scrollHeight;
-  } catch(e) { console.log("Error JSON:", e); }
+  } catch(e) { console.log("Error JSON:", e); } return;
 }
 document.getElementById("input").placeholder = "Conversacion finalizada";
 if (jsonMatch) {
