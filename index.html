@@ -34,13 +34,6 @@ body { background:#EEF1F4; display:flex; align-items:center; justify-content:cen
 textarea { flex:1; background:#EEF1F4; border:1px solid #C5CDD6; border-radius:10px; padding:10px 14px; color:#1C2B3A; font-size:13.5px; font-family:inherit; resize:none; outline:none; min-height:42px; max-height:100px; line-height:1.4; }
 button { background:#2C4466; border:none; border-radius:10px; width:42px; height:42px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 button:disabled { background:#C5CDD6; cursor:not-allowed; }
-.summary { background:#fff; border:1.5px solid #4B6A8A; border-radius:14px; padding:18px 20px; max-width:90%; }
-.summary-title { font-size:11px; font-weight:700; letter-spacing:1.5px; color:#5A6E80; margin-bottom:10px; text-transform:uppercase; }
-.badge { display:inline-block; font-size:11px; font-weight:700; letter-spacing:1px; padding:3px 12px; border-radius:20px; margin-bottom:14px; text-transform:uppercase; }
-.row { display:flex; gap:10px; font-size:12.5px; margin-bottom:6px; }
-.row-label { color:#5A6E80; min-width:110px; flex-shrink:0; }
-.razon { margin-top:10px; padding-top:10px; border-top:1px solid #C5CDD6; font-size:12px; color:#5A6E80; font-style:italic; }
-.restart-btn { margin-top:14px; background:transparent; border:1px solid #C5CDD6; color:#5A6E80; font-size:12px; padding:5px 14px; border-radius:8px; cursor:pointer; width:auto; height:auto; }
 </style>
 </head>
 <body>
@@ -69,157 +62,114 @@ button:disabled { background:#C5CDD6; cursor:not-allowed; }
     </button>
   </div>
 </div>
-
 <script>
-const SYSTEM_PROMPT = `Eres el asistente virtual de GG CONSULTORES & BROKERS INDUSTRIALES®, empresa especializada en consultoría para compra, venta y renta de bodegas comerciales, bodegas industriales, naves industriales, lotes industriales y terrenos industriales en Querétaro y México. Representas al Lic. Eduardo García, Socio-Director Comercial, Consultor Financiero Especializado en Inversiones Inmobiliarias e Integrador de Proyectos Inmobiliarios.
+var SYSTEM_PROMPT = "Eres el asistente virtual de GG CONSULTORES & BROKERS INDUSTRIALES, empresa especializada en bodegas industriales, naves industriales y terrenos industriales en Queretaro y Mexico. Representas al Lic. Eduardo Garcia, Socio-Director Comercial. Tu mision es calificar leads de manera conversacional. Haz las siguientes 8 preguntas UNA A LA VEZ: 1. Nombre completo del prospecto 2. Nombre de su empresa 3. Giro o actividad principal 4. Tipo de operacion: Inversion, Compra-Venta, Renta o Usuario Final 5. Metros cuadrados requeridos 6. Zona o ciudad requerida 7. Caracteristicas tecnicas: altura libre, tipo de piso, rampa, anden, potencia electrica 8. Fecha de disponibilidad requerida. Al terminar escribe [RESUMEN_LISTO] y un JSON: {nombre,empresa,giro,operacion,metros,zona,caracteristicas,urgencia,calificacion,razon}. Calificacion: calificado si empresa definida mas de 300m2 y urgencia menor a 6 meses, potencial si datos vagos, no-calificado si sin empresa. Inicia presentandote y pidiendo el nombre. Habla en español mexicano profesional.";
 
-Tu misión es calificar leads de manera conversacional, cálida y profesional. Debes hacer las siguientes 8 preguntas UNA A LA VEZ, en orden:
-1. Nombre completo del prospecto
-2. Nombre de su empresa
-3. Giro o actividad principal de la empresa
-4. Tipo de operación que busca: Inversión / Compra-Venta / Renta / Usuario Final
-5. Cuántos metros cuadrados (m²) requiere
-6. En qué zona o ciudad requiere el espacio industrial
-7. Características técnicas requeridas: altura libre, tipo de piso, rampa, andén de carga, potencia eléctrica en kVA, u otras especificaciones
-8. Para cuándo requiere disponibilidad (urgencia o fecha aproximada)
-
-REGLAS:
-- Haz UNA sola pregunta por mensaje, de forma natural y conversacional.
-- Sé cálido, profesional y conciso. Máximo 2-3 líneas por respuesta.
-- Al recibir la respuesta a la pregunta 8, escribe exactamente [RESUMEN_LISTO] y luego un bloque JSON con esta estructura:
-{"nombre":"...","empresa":"...","giro":"...","operacion":"...","metros":"...","zona":"...","caracteristicas":"...","urgencia":"...","calificacion":"calificado|potencial|no-calificado","razon":"..."}
-
-Criterios de calificación:
-- CALIFICADO: tiene empresa definida, giro claro, más de 300 m², zona específica y urgencia próxima (menos de 6 meses)
-- POTENCIAL: tiene empresa pero datos vagos, proyecto a largo plazo, o menos de 300 m²
-- NO CALIFICADO: no tiene empresa, necesidades muy pequeñas o fuera del sector industrial
-
-Inicia saludando brevemente y pide el nombre del prospecto. Habla en español mexicano, tono profesional pero accesible.`;
-
-let history = [];
-let loading = false;
-let done = false;
+var history = [];
+var loading = false;
+var done = false;
 
 function setLoading(val) {
   loading = val;
-  document.getElementById('dot').className = val ? 'dot loading' : 'dot';
-  document.getElementById('status-text').textContent = val ? 'Escribiendo...' : 'En línea';
-  document.getElementById('send-btn').disabled = val || done;
-  document.getElementById('input').disabled = val || done;
+  document.getElementById("dot").className = val ? "dot loading" : "dot";
+  document.getElementById("status-text").textContent = val ? "Escribiendo..." : "En linea";
+  document.getElementById("send-btn").disabled = val || done;
+  document.getElementById("input").disabled = val || done;
 }
 
 function addMessage(role, text) {
-  const msgs = document.getElementById('messages');
-  if (role === 'typing') {
-    const div = document.createElement('div');
-    div.id = 'typing';
-    div.className = 'typing';
-    div.innerHTML = '<span></span><span></span><span></span>';
-    msgs.appendChild(div);
+  var msgs = document.getElementById("messages");
+  if (role === "typing") {
+    var t = document.createElement("div");
+    t.id = "typing";
+    t.className = "typing";
+    t.innerHTML = "<span></span><span></span><span></span>";
+    msgs.appendChild(t);
     msgs.scrollTop = msgs.scrollHeight;
     return;
   }
-  const el = document.getElementById('typing');
+  var el = document.getElementById("typing");
   if (el) el.remove();
-
-  const wrap = document.createElement('div');
-  wrap.className = `msg-wrap ${role === 'user' ? 'user' : 'agent'}`;
-
-  if (role === 'agent') {
-    const label = document.createElement('div');
-    label.className = 'msg-label';
-    label.textContent = 'Asistente GG Brokers';
+  var wrap = document.createElement("div");
+  wrap.className = "msg-wrap " + (role === "user" ? "user" : "agent");
+  if (role === "agent") {
+    var label = document.createElement("div");
+    label.className = "msg-label";
+    label.textContent = "Asistente GG Brokers";
     wrap.appendChild(label);
   }
-
-  const bubble = document.createElement('div');
-  bubble.className = `bubble ${role}`;
+  var bubble = document.createElement("div");
+  bubble.className = "bubble " + role;
   bubble.textContent = text;
   wrap.appendChild(bubble);
   msgs.appendChild(wrap);
   msgs.scrollTop = msgs.scrollHeight;
 }
 
-function showSummary(data) {
-  const msgs = document.getElementById('messages');
-  const badges = {
-    'calificado': { bg:'#1a3a2a', color:'#4CAF80', label:'LEAD CALIFICADO' },
-    'potencial': { bg:'#1a2a3a', color:'#6B8FAD', label:'LEAD POTENCIAL' },
-    'no-calificado': { bg:'#3a1a1a', color:'#E07070', label:'NO CALIFICADO' },
-  };
-  const badge = badges[data.calificacion] || badges['potencial'];
-  const rows = [
-    ['Nombre', data.nombre], ['Empresa', data.empresa], ['Giro', data.giro],
-    ['Operación', data.operacion], ['Metros (m²)', data.metros], ['Zona', data.zona],
-    ['Características', data.caracteristicas], ['Urgencia', data.urgencia],
-  ];
-  const div = document.createElement('div');
-  div.className = 'summary';
-  div.innerHTML = `
-    <div class="summary-title">Ficha del Prospecto</div>
-    <div class="badge" style="background:${badge.bg};color:${badge.color};border:1px solid ${badge.color}">${badge.label}</div>
-    ${rows.map(([l,v]) => `<div class="row"><span class="row-label">${l}:</span><span>${v||'—'}</span></div>`).join('')}
-    <div class="razon">${data.razon}</div>
-    <button class="restart-btn" onclick="startChat()">+ Calificar otro lead</button>
-  `;
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-async function callClaude(newHistory) {
+function callClaude(newHistory) {
   setLoading(true);
-  addMessage('typing');
-  try {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-5, max_tokens: 1000, system: SYSTEM_PROMPT, messages: newHistory })
-    });
-    const data = await res.json();
-    const el = document.getElementById('typing');
+  addMessage("typing");
+  fetch("/api/chat", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({model: "claude-sonnet-4-5", max_tokens: 1000, system: SYSTEM_PROMPT, messages: newHistory})
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    var el = document.getElementById("typing");
     if (el) el.remove();
-    console.log('Respuesta completa:', JSON.stringify(data));
-const raw = data && data.content && Array.isArray(data.content) && data.content.length > 0 ? data.content[0].text : '';
-    if (!raw) { addMessage('system', 'Sin respuesta. Intente de nuevo.'); setLoading(false); return; }
-    history = [...newHistory, { role: 'assistant', content: raw }];
-    if (raw.includes('[RESUMEN_LISTO]')) {
-      const before = raw.split('[RESUMEN_LISTO]')[0].trim();
-      if (before) addMessage('agent', before);
-      const jsonMatch = raw.match(/\{[\s\S]*\}/);
-      if (jsonMatch) { try { showSummary(JSON.parse(jsonMatch[0])); } catch(e) {} }
-      done = true;
-      document.getElementById('input').placeholder = 'Conversación finalizada';
-    } else {
-      addMessage('agent', raw);
+    var raw = "";
+    if (data && data.content && data.content.length > 0) {
+      raw = data.content[0].text || "";
     }
-  } catch(e) {
-    const el = document.getElementById('typing');
+    if (!raw) {
+      addMessage("agent", "Sin respuesta. Intente de nuevo.");
+      setLoading(false);
+      return;
+    }
+    history = newHistory.concat([{role: "assistant", content: raw}]);
+    if (raw.indexOf("[RESUMEN_LISTO]") !== -1) {
+      var before = raw.split("[RESUMEN_LISTO]")[0].trim();
+      if (before) addMessage("agent", before);
+      done = true;
+      document.getElementById("input").placeholder = "Conversacion finalizada";
+    } else {
+      addMessage("agent", raw);
+    }
+    setLoading(false);
+  })
+  .catch(function() {
+    var el = document.getElementById("typing");
     if (el) el.remove();
-    addMessage('system', 'Error de conexión. Por favor intente de nuevo.');
-  }
-  setLoading(false);
+    addMessage("agent", "Error de conexion. Intente de nuevo.");
+    setLoading(false);
+  });
 }
 
-async function sendMessage() {
-  const input = document.getElementById('input');
-  const text = input.value.trim();
+function sendMessage() {
+  var input = document.getElementById("input");
+  var text = input.value.trim();
   if (!text || loading || done) return;
-  input.value = '';
-  addMessage('user', text);
-  const newHistory = [...history, { role: 'user', content: text }];
-  await callClaude(newHistory);
+  input.value = "";
+  addMessage("user", text);
+  var newHistory = history.concat([{role: "user", content: text}]);
+  callClaude(newHistory);
 }
 
-async function startChat() {
-  document.getElementById('messages').innerHTML = '';
-  history = []; done = false;
-  document.getElementById('input').placeholder = 'Escribe tu respuesta aquí...';
-  document.getElementById('input').disabled = false;
-  await callClaude([{role:'user', content:'Hola'}]);
+function startChat() {
+  document.getElementById("messages").innerHTML = "";
+  history = [];
+  done = false;
+  document.getElementById("input").placeholder = "Escribe tu respuesta aqui...";
+  document.getElementById("input").disabled = false;
+  callClaude([{role: "user", content: "Hola"}]);
 }
 
-document.getElementById('input').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+document.getElementById("input").addEventListener("keydown", function(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
 });
 
 startChat();
