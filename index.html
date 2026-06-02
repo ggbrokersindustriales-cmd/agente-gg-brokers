@@ -63,7 +63,7 @@ button:disabled { background:#C5CDD6; cursor:not-allowed; }
   </div>
 </div>
 <script>
-var SYSTEM_PROMPT = "Eres el asistente virtual de GG CONSULTORES & BROKERS INDUSTRIALES, empresa especializada en bodegas industriales, naves industriales y terrenos industriales en Queretaro y Mexico. Representas al Lic. Eduardo Garcia, Socio-Director Comercial. Tu mision es calificar leads de manera conversacional. Haz las siguientes 8 preguntas UNA A LA VEZ: 1. Nombre completo del prospecto 2. Nombre de su empresa 3. Giro o actividad principal 4. Tipo de operacion: Inversion, Compra-Venta, Renta o Usuario Final 5. Metros cuadrados requeridos 6. Zona o ciudad requerida 7. Caracteristicas tecnicas: altura libre, tipo de piso, rampa, anden, potencia electrica 8. Fecha de disponibilidad requerida. Al terminar escribe [RESUMEN_LISTO] y un JSON: {nombre,empresa,giro,operacion,metros,zona,caracteristicas,urgencia,calificacion,razon}. Calificacion: calificado si empresa definida mas de 300m2 y urgencia menor a 6 meses, potencial si datos vagos, no-calificado si sin empresa. Inicia presentandote y pidiendo el nombre. Habla en español mexicano profesional.";
+var SYSTEM_PROMPT = "Eres el asistente virtual de GG CONSULTORES & BROKERS INDUSTRIALES, empresa especializada en bodegas industriales, naves industriales y terrenos industriales en Queretaro y Mexico. Representas al Lic. Eduardo Garcia, Socio-Director Comercial. Tu mision es calificar leads de manera conversacional. Haz las siguientes 10 preguntas UNA A LA VEZ en orden: 1. Nombre completo del prospecto 2. Nombre de su empresa 3. Giro o actividad principal 4. Tipo de operacion: Inversion, Compra-Venta, Renta o Usuario Final 5. Metros cuadrados requeridos 6. Zona o ciudad requerida 7. Caracteristicas tecnicas: altura libre, tipo de piso, rampa, anden, potencia electrica 8. Fecha de disponibilidad requerida 9. Numero de WhatsApp del prospecto 10. Correo electronico del prospecto. Al terminar escribe [RESUMEN_LISTO] y un JSON con estos campos exactos: {nombre,empresa,giro,operacion,metros,zona,caracteristicas,urgencia,whatsapp,correo,calificacion,razon}. Calificacion: calificado si empresa definida mas de 300m2 y urgencia menor a 6 meses, potencial si datos vagos, no-calificado si sin empresa. Inicia presentandote y pidiendo el nombre. Habla en espanol mexicano profesional.";
 
 chatHistory = [];
 var loading = false;
@@ -132,6 +132,38 @@ function callClaude(newHistory) {
       var before = raw.split("[RESUMEN_LISTO]")[0].trim();
       if (before) addMessage("agent", before);
       done = true;
+document.getElementById("input").placeholder = "Conversacion finalizada";
+var jsonMatch2 = raw.match(/\{[\s\S]*\}/);
+if (jsonMatch2) {
+  try {
+    var d = JSON.parse(jsonMatch2[0]);
+    var msg = "Hola Eduardo, nuevo prospecto de tu agente GG Brokers:%0A%0A" +
+      "Nombre: " + (d.nombre||"") + "%0A" +
+      "Empresa: " + (d.empresa||"") + "%0A" +
+      "Giro: " + (d.giro||"") + "%0A" +
+      "Operacion: " + (d.operacion||"") + "%0A" +
+      "Metros: " + (d.metros||"") + "%0A" +
+      "Zona: " + (d.zona||"") + "%0A" +
+      "Caracteristicas: " + (d.caracteristicas||"") + "%0A" +
+      "Urgencia: " + (d.urgencia||"") + "%0A" +
+      "WhatsApp: " + (d.whatsapp||"") + "%0A" +
+      "Correo: " + (d.correo||"") + "%0A" +
+      "Calificacion: " + (d.calificacion||"").toUpperCase() + "%0A" +
+      "Razon: " + (d.razon||"");
+    var waLink = "https://wa.me/524424571050?text=" + msg;
+    var msgs2 = document.getElementById("messages");
+    var btnWrap = document.createElement("div");
+    btnWrap.style.cssText = "display:flex;justify-content:center;margin-top:16px;";
+    var waBtn = document.createElement("a");
+    waBtn.href = waLink;
+    waBtn.target = "_blank";
+    waBtn.style.cssText = "background:#25D366;color:white;padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;";
+    waBtn.innerHTML = "Enviar informacion al asesor";
+    btnWrap.appendChild(waBtn);
+    msgs2.appendChild(btnWrap);
+    msgs2.scrollTop = msgs2.scrollHeight;
+  } catch(e) { console.log("Error JSON:", e); }
+}
 document.getElementById("input").placeholder = "Conversacion finalizada";
 if (jsonMatch) {
   try {
